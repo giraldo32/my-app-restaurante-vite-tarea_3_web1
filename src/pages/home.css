@@ -1,0 +1,25 @@
+.card-horizontal {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  min-height: 180px;
+  max-height: 220px;
+  overflow: hidden;
+}
+
+.card-img-horizontal {
+  width: 220px;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-body-horizontal {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
