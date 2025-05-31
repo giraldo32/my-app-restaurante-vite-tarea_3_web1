@@ -108,8 +108,8 @@ export default function Home() {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="container mt-4" style={{ maxWidth: 900 }}>
-      <div className="mb-3 d-flex flex-column gap-2 flex-md-row align-items-center">
+    <div className="container mt-4" style={{ maxWidth: 500 }}>
+      <div className="containers">
         {/* Botón Buscar o caja de búsqueda */}
         {!showSearchBox ? (
           <button
@@ -242,6 +242,4 @@ export default function Home() {
         )}
       </div>
       {loading && <div>Cargando restaurantes...</div>}
-    </div>
-  );
 }

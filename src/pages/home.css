@@ -2,9 +2,8 @@
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  background: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(20, 179, 118, 0.08);
   min-height: 180px;
   max-height: 220px;
   overflow: hidden;
@@ -23,3 +22,17 @@
   flex-direction: column;
   justify-content: center;
 }
+/* ...existing code... */
+.cards-container {
+  /* max-width:50px;  <-- Elimina o comenta esta línea */
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  justify-items: center;
+  align-items: center;
+}
+/* ...existing code... */
+body{
+  background-color: rgb(79, 11, 143);
+}
+/* ...existing code... */
