@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { db } from "../firebase/firebaseConfig";
 import { collection, getDocs, addDoc } from "firebase/firestore";
 import "./home.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const restaurantesIniciales = [
   {
@@ -39,9 +39,7 @@ export default function Home() {
   const [restaurants, setRestaurants] = useState(restaurantesIniciales);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showForm, setShowForm] = useState(false);
   const [searchInput, setSearchInput] = useState("");
-  const [showSearchBox, setShowSearchBox] = useState(false);
   const [newRest, setNewRest] = useState({
     name: "",
     desc: "",
@@ -50,6 +48,11 @@ export default function Home() {
   });
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Mostrar según ruta
+  const showSearchBox = location.pathname === "/buscar";
+  const showForm = location.pathname === "/nuevo";
 
   // Cargar restaurantes desde Firebase
   const fetchRestaurants = async () => {
@@ -72,38 +75,49 @@ export default function Home() {
     // eslint-disable-next-line
   }, []);
 
+  // Limpiar estados al cambiar de ruta
+  useEffect(() => {
+    if (!showSearchBox) setSearchInput("");
+    if (!showForm) setNewRest({ name: "", desc: "", addr: "", img: "" });
+    // eslint-disable-next-line
+  }, [location.pathname]);
+
   const handleInput = e => {
     setNewRest({ ...newRest, [e.target.name]: e.target.value });
   };
 
-  // Guardar restaurante en Firebase y mostrarlo inmediatamente
+  // Guardar restaurante
   const handleAdd = async e => {
     e.preventDefault();
-    const tempRest = { ...newRest, id: Date.now().toString() }; // id temporal
-    setRestaurants(prev => [tempRest, ...prev]); // Mostrarlo de inmediato
+    const tempRest = { ...newRest, id: Date.now().toString() };
+    setRestaurants(prev => [tempRest, ...prev]);
     setNewRest({ name: "", desc: "", addr: "", img: "" });
-    setShowForm(false);
+    navigate("/");
     try {
       await addDoc(collection(db, "restaurants"), newRest);
-      fetchRestaurants(); // Recargar la lista real desde Firebase
+      fetchRestaurants();
     } catch (err) {
       setError("Error al guardar el restaurante.");
     }
   };
 
-  // Botón Inicio: limpia búsqueda, oculta la caja de búsqueda, oculta el formulario y recarga restaurantes
+  // Botones de navegación
   const handleInicio = () => {
-    setSearchInput("");
-    setShowSearchBox(false);
-    setShowForm(false);
-    fetchRestaurants();
     navigate("/");
   };
+  const handleBuscar = () => {
+    navigate("/buscar");
+  };
+  const handleNuevo = () => {
+    navigate("/nuevo");
+  };
 
-  // Búsqueda en tiempo real
-  const filtered = restaurants.filter(r =>
-    r.name.toLowerCase().includes(searchInput.toLowerCase())
-  );
+  // Filtrado solo en buscar
+  const filtered = showSearchBox
+    ? restaurants.filter(r =>
+        r.name.toLowerCase().includes(searchInput.toLowerCase())
+      )
+    : restaurants;
 
   if (error) return <div>{error}</div>;
 
@@ -111,16 +125,7 @@ export default function Home() {
     <div className="container mt-4" style={{ maxWidth: 900 }}>
       <div className="mb-3 d-flex flex-column gap-2 flex-md-row align-items-center">
         {/* Botón Buscar o caja de búsqueda */}
-        {!showSearchBox ? (
-          <button
-            className="btn btn-primary"
-            type="button"
-            onClick={() => setShowSearchBox(true)}
-            style={{ maxWidth: 300 }}
-          >
-            Buscar
-          </button>
-        ) : (
+        {showSearchBox ? (
           <div className="input-group" style={{ maxWidth: 300 }}>
             <input
               type="text"
@@ -133,15 +138,21 @@ export default function Home() {
             <button
               className="btn btn-outline-secondary"
               type="button"
-              onClick={() => {
-                setShowSearchBox(false);
-                setSearchInput("");
-              }}
+              onClick={handleInicio}
               title="Cerrar búsqueda"
             >
               ✕
             </button>
           </div>
+        ) : (
+          <button
+            className="btn btn-primary"
+            type="button"
+            onClick={handleBuscar}
+            style={{ maxWidth: 300 }}
+          >
+            Buscar
+          </button>
         )}
         {/* Botón Inicio */}
         <button
@@ -155,7 +166,7 @@ export default function Home() {
         {!showForm && (
           <button
             className="btn btn-success ms-md-2 mt-2 mt-md-0"
-            onClick={() => setShowForm(true)}
+            onClick={handleNuevo}
             type="button"
           >
             Nuevo Restaurante
@@ -163,6 +174,7 @@ export default function Home() {
         )}
       </div>
 
+      {/* Formulario solo en /nuevo */}
       {showForm && (
         <form className="mb-4" onSubmit={handleAdd}>
           <input
@@ -198,7 +210,7 @@ export default function Home() {
             required
           />
           <button className="btn btn-primary" type="submit">Guardar</button>
-          <button className="btn btn-secondary ms-2" type="button" onClick={() => setShowForm(false)}>Cancelar</button>
+          <button className="btn btn-secondary ms-2" type="button" onClick={handleInicio}>Cancelar</button>
         </form>
       )}
 
@@ -220,10 +232,6 @@ export default function Home() {
                 maxWidth: 500,
                 textAlign: "center",
                 margin: "0 auto",
-
-
-
-
               }}
             >
               <img
@@ -236,8 +244,6 @@ export default function Home() {
                   borderRadius: 12,
                   marginRight: 32,
                   flexShrink: 0
-
-
                 }}
               />
               <div style={{ flex: 1 }}>

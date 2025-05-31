@@ -10,9 +10,9 @@ export default function App() {
     <BrowserRouter>
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/search" element={<Search />} />
-        <Route path="/new" element={<NewRestaurant />} />
+          <Route path="/" element={<Home />} />
+        <Route path="/buscar" element={<Home />} />
+        <Route path="/nuevo" element={<Home />} />
       </Routes>
     </BrowserRouter>
   );
