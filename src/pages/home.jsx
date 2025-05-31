@@ -108,8 +108,8 @@ export default function Home() {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="container mt-4" style={{ maxWidth: 500 }}>
-      <div className="containers">
+    <div className="container mt-4" style={{ maxWidth: 900 }}>
+      <div className="mb-3 d-flex flex-column gap-2 flex-md-row align-items-center">
         {/* Botón Buscar o caja de búsqueda */}
         {!showSearchBox ? (
           <button
@@ -203,21 +203,27 @@ export default function Home() {
       )}
 
       <h2 className="mb-3">Restaurantes</h2>
-      <div>
+      <div className="row row-cols-1 row-cols-md-2 g-5">
         {filtered.length === 0 ? (
           <div>No hay restaurantes registrados.</div>
         ) : (
           filtered.map((r) => (
             <div
               key={r.id + r.name}
-              className="d-flex align-items-center border rounded p-4 mb-4"
+              className="border rounded p-3 mb-4"
               style={{
-                background: "#f8f9fa",
+                background: "#f4f6f6",
                 minHeight: 200,
                 flexDirection: "row",
-                gap: 32,
+                gap: 45,
                 boxShadow: "0 4px 16px rgba(52, 123, 210, 0.1)",
-                maxWidth: 900
+                maxWidth: 500,
+                textAlign: "center",
+                margin: "0 auto",
+
+
+
+
               }}
             >
               <img
@@ -230,16 +236,20 @@ export default function Home() {
                   borderRadius: 12,
                   marginRight: 32,
                   flexShrink: 0
+
+
                 }}
               />
               <div style={{ flex: 1 }}>
-                <strong style={{ fontSize: 28, display: "block", marginBottom: 12 }}>{r.name}</strong>
-                <div style={{ fontSize: 18, marginBottom: 10 }}>{r.desc}</div>
-                <div style={{ fontSize: 16, color: "#555" }}>{r.addr}</div>
+                <strong style={{ fontSize: 22, display: "block", marginBottom: 8 }}>{r.name}</strong>
+                <div style={{ fontSize: 16, marginBottom: 6 }}>{r.desc}</div>
+                <div style={{ fontSize: 14, color: "#555" }}>{r.addr}</div>
               </div>
             </div>
           ))
         )}
       </div>
       {loading && <div>Cargando restaurantes...</div>}
+    </div>
+  );
 }
