@@ -145,14 +145,16 @@ export default function Home() {
             </button>
           </div>
         ) : (
-          <button
-            className="btn btn-primary"
-            type="button"
-            onClick={handleBuscar}
-            style={{ maxWidth: 300 }}
-          >
-            Buscar
-          </button>
+          !showForm && (
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={handleBuscar}
+              style={{ maxWidth: 300 }}
+            >
+              Buscar
+            </button>
+          )
         )}
         {/* Botón Inicio */}
         <button
@@ -174,8 +176,8 @@ export default function Home() {
         )}
       </div>
 
-      {/* Formulario solo en /nuevo */}
-      {showForm && (
+      {/* SOLO el formulario en /nuevo */}
+      {showForm ? (
         <form className="mb-4" onSubmit={handleAdd}>
           <input
             name="name"
@@ -212,50 +214,52 @@ export default function Home() {
           <button className="btn btn-primary" type="submit">Guardar</button>
           <button className="btn btn-secondary ms-2" type="button" onClick={handleInicio}>Cancelar</button>
         </form>
+      ) : (
+        <>
+          <h2 className="mb-3">Restaurantes</h2>
+          <div className="row row-cols-1 row-cols-md-2 g-5">
+            {filtered.length === 0 ? (
+              <div>No hay restaurantes registrados.</div>
+            ) : (
+              filtered.map((r) => (
+                <div
+                  key={r.id + r.name}
+                  className="border rounded p-3 mb-4"
+                  style={{
+                    background: "#f4f6f6",
+                    minHeight: 200,
+                    flexDirection: "row",
+                    gap: 45,
+                    boxShadow: "0 4px 16px rgba(52, 123, 210, 0.1)",
+                    maxWidth: 500,
+                    textAlign: "center",
+                    margin: "0 auto",
+                  }}
+                >
+                  <img
+                    src={r.img || "https://via.placeholder.com/240x180"}
+                    alt={r.name}
+                    style={{
+                      width: 240,
+                      height: 180,
+                      objectFit: "cover",
+                      borderRadius: 12,
+                      marginRight: 32,
+                      flexShrink: 0
+                    }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <strong style={{ fontSize: 22, display: "block", marginBottom: 8 }}>{r.name}</strong>
+                    <div style={{ fontSize: 16, marginBottom: 6 }}>{r.desc}</div>
+                    <div style={{ fontSize: 14, color: "#555" }}>{r.addr}</div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          {loading && <div>Cargando restaurantes...</div>}
+        </>
       )}
-
-      <h2 className="mb-3">Restaurantes</h2>
-      <div className="row row-cols-1 row-cols-md-2 g-5">
-        {filtered.length === 0 ? (
-          <div>No hay restaurantes registrados.</div>
-        ) : (
-          filtered.map((r) => (
-            <div
-              key={r.id + r.name}
-              className="border rounded p-3 mb-4"
-              style={{
-                background: "#f4f6f6",
-                minHeight: 200,
-                flexDirection: "row",
-                gap: 45,
-                boxShadow: "0 4px 16px rgba(52, 123, 210, 0.1)",
-                maxWidth: 500,
-                textAlign: "center",
-                margin: "0 auto",
-              }}
-            >
-              <img
-                src={r.img || "https://via.placeholder.com/240x180"}
-                alt={r.name}
-                style={{
-                  width: 240,
-                  height: 180,
-                  objectFit: "cover",
-                  borderRadius: 12,
-                  marginRight: 32,
-                  flexShrink: 0
-                }}
-              />
-              <div style={{ flex: 1 }}>
-                <strong style={{ fontSize: 22, display: "block", marginBottom: 8 }}>{r.name}</strong>
-                <div style={{ fontSize: 16, marginBottom: 6 }}>{r.desc}</div>
-                <div style={{ fontSize: 14, color: "#555" }}>{r.addr}</div>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-      {loading && <div>Cargando restaurantes...</div>}
     </div>
   );
 }
