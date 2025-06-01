@@ -1,4 +1,5 @@
 import { getFirestore } from "firebase/firestore"; // ← AGREGA ESTA LÍNEAnpm 
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that you want to use
@@ -7,13 +8,13 @@ import { getAnalytics } from "firebase/analytics";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyBe9xkwmbb2Wm6OM8pfWsdDCmEervtuge0",
-  authDomain: "restaurante-47036.firebaseapp.com",
-  projectId: "restaurante-47036",
-  storageBucket: "restaurante-47036.firebasestorage.app",
-  messagingSenderId: "169634170724",
-  appId: "1:169634170724:web:4e1f87d8b64ea1967a5c71",
-  measurementId: "G-3T452RC53H"
+  apiKey: "AIzaSyDKnaa1sQqL23Z8lZPebgBdtFA-WPzygFs",
+  authDomain: "restaurante-proyecto-3.firebaseapp.com",
+  projectId: "restaurante-proyecto-3",
+  storageBucket: "restaurante-proyecto-3.firebasestorage.app",
+  messagingSenderId: "311626024753",
+  appId: "1:311626024753:web:b2e42e33e81a06ccde5210",
+  measurementId: "G-1PLCBMR4SG"
 };
 
 // Initialize Firebase
