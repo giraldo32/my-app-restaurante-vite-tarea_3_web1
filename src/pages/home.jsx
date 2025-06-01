@@ -34,7 +34,7 @@ const restaurantesIniciales = [
     name: "El Mar de Sabores",
     desc: "Pescados y mariscos frescos.",
     addr: "Calle del Mar 50",
-    img: "https://images.unsplash.com/photo-1502741338009-cac2772e18bc"
+    img: "https://verestmagazine.com/wp-content/uploads/2023/04/Cuaresma-Bellopuerto-1024x683.jpg"
   }
 ];
 
