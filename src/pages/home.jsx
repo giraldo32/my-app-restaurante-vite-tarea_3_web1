@@ -3,8 +3,6 @@ import { db } from "../firebase/firebaseConfig";
 import { collection, getDocs, addDoc } from "firebase/firestore";
 import "./home.css";
 import { useNavigate, useLocation } from "react-router-dom";
-
-// ICONOS DE REACT-ICONS
 import { FaSearch, FaHome, FaPlus, FaTimes } from "react-icons/fa";
 
 const DARK_BLUE = "#0d2346";
@@ -44,6 +42,7 @@ export default function Home() {
   const [restaurants, setRestaurants] = useState(restaurantesIniciales);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [searchInput, setSearchInput] = useState("");
   const [newRest, setNewRest] = useState({
     name: "",
@@ -93,10 +92,13 @@ export default function Home() {
     const tempRest = { ...newRest, id: Date.now().toString() };
     setRestaurants(prev => [tempRest, ...prev]);
     setNewRest({ name: "", desc: "", addr: "", img: "" });
+    setSuccess(null); // Limpiar mensaje previo
     navigate("/");
     try {
       await addDoc(collection(db, "restaurants"), newRest);
+      setSuccess("¡Restaurante guardado exitosamente!");
       fetchRestaurants();
+      setTimeout(() => setSuccess(null), 3000); // Ocultar mensaje después de 3 segundos
     } catch (err) {
       setError("Error al guardar el restaurante.");
     }
@@ -122,6 +124,13 @@ export default function Home() {
 
   return (
     <div className="container mt-4" style={{ maxWidth: 900 }}>
+      {/* Mensaje de éxito */}
+      {success && (
+        <div className="alert alert-success text-center" style={{ fontWeight: "bold" }}>
+          {success}
+        </div>
+      )}
+
       <div className="mb-3 d-flex flex-column gap-2 flex-md-row align-items-center">
         {showSearchBox ? (
           <div className="input-group" style={{ maxWidth: 300 }}>
@@ -180,60 +189,79 @@ export default function Home() {
       </div>
 
       {showForm ? (
-        <form className="mb-4" onSubmit={handleAdd}>
-          <input
-            name="name"
-            placeholder="Nombre"
-            className="form-control mb-2"
-            value={newRest.name}
-            onChange={handleInput}
-            required
-          />
-          <input
-            name="desc"
-            placeholder="Descripción"
-            className="form-control mb-2"
-            value={newRest.desc}
-            onChange={handleInput}
-            required
-          />
-          <input
-            name="addr"
-            placeholder="Dirección"
-            className="form-control mb-2"
-            value={newRest.addr}
-            onChange={handleInput}
-            required
-          />
-          <input
-            name="img"
-            placeholder="URL de la imagen"
-            className="form-control mb-2"
-            value={newRest.img}
-            onChange={handleInput}
-            required
-          />
-          <button
-            className="btn"
-            type="submit"
-            style={{ background: DARK_BLUE, color: "#fff", border: "none" }}
+        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "60vh" }}>
+          <div
+            className="card shadow"
+            style={{
+              maxWidth: 400,
+              width: "100%",
+              padding: 32,
+              borderRadius: 16,
+              background: "#f8f9fa",
+              border: `2px solid ${DARK_BLUE}`
+            }}
           >
-            <FaPlus style={{ marginRight: 6, color: "#fff" }} />
-            Guardar
-          </button>
-          <button
-            className="btn ms-2"
-            type="button"
-            onClick={handleInicio}
-            style={{ background: DARK_BLUE, color: "#fff", border: "none" }}
-          >
-            <FaTimes style={{ marginRight: 6, color: "#fff" }} />
-            Cancelar
-          </button>
-        </form>
+            <h3 style={{ color: DARK_BLUE, textAlign: "center", marginBottom: 24 }}>
+              <FaPlus style={{ marginRight: 8, color: DARK_BLUE }} />
+              Nuevo Restaurante
+            </h3>
+            <form onSubmit={handleAdd}>
+              <input
+                name="name"
+                placeholder="Nombre"
+                className="form-control mb-3"
+                value={newRest.name}
+                onChange={handleInput}
+                required
+              />
+              <input
+                name="desc"
+                placeholder="Descripción"
+                className="form-control mb-3"
+                value={newRest.desc}
+                onChange={handleInput}
+                required
+              />
+              <input
+                name="addr"
+                placeholder="Dirección"
+                className="form-control mb-3"
+                value={newRest.addr}
+                onChange={handleInput}
+                required
+              />
+              <input
+                name="img"
+                placeholder="URL de la imagen"
+                className="form-control mb-3"
+                value={newRest.img}
+                onChange={handleInput}
+                required
+              />
+              <div className="d-flex justify-content-between">
+                <button
+                  className="btn"
+                  type="submit"
+                  style={{ background: DARK_BLUE, color: "#fff", border: "none", minWidth: 110 }}
+                >
+                  <FaPlus style={{ marginRight: 6, color: "#fff" }} />
+                  Guardar
+                </button>
+                <button
+                  className="btn"
+                  type="button"
+                  onClick={handleInicio}
+                  style={{ background: DARK_BLUE, color: "#fff", border: "none", minWidth: 110 }}
+                >
+                  <FaTimes style={{ marginRight: 6, color: "#fff" }} />
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       ) : (
         <>
-          {/* Título e icono eliminados */}
           <div style={{ height: 24, marginBottom: 16 }}></div>
           <div className="row row-cols-1 row-cols-md-2 g-5">
             {filtered.length === 0 ? (
@@ -248,9 +276,9 @@ export default function Home() {
                     color: "#222",
                     minHeight: 200,
                     display: "flex",
-                    flexDirection: "column", // Cambia a columna
-                    alignItems: "center",    // Centra horizontalmente
-                    justifyContent: "center",// Centra verticalmente
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
                     gap: 16,
                     boxShadow: "0 4px 16px rgba(52, 123, 210, 0.1)",
                     maxWidth: 300,
@@ -266,7 +294,7 @@ export default function Home() {
                       height: 180,
                       objectFit: "cover",
                       borderRadius: 12,
-                      margin: "0 auto", // Centra la imagen
+                      margin: "0 auto",
                       display: "block"
                     }}
                   />
