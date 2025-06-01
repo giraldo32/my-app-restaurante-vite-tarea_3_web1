@@ -50,11 +50,9 @@ export default function Home() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Mostrar según ruta
   const showSearchBox = location.pathname === "/buscar";
   const showForm = location.pathname === "/nuevo";
 
-  // Cargar restaurantes desde Firebase
   const fetchRestaurants = async () => {
     try {
       const snapshot = await getDocs(collection(db, "restaurants"));
@@ -75,7 +73,6 @@ export default function Home() {
     // eslint-disable-next-line
   }, []);
 
-  // Limpiar estados al cambiar de ruta
   useEffect(() => {
     if (!showSearchBox) setSearchInput("");
     if (!showForm) setNewRest({ name: "", desc: "", addr: "", img: "" });
@@ -86,7 +83,6 @@ export default function Home() {
     setNewRest({ ...newRest, [e.target.name]: e.target.value });
   };
 
-  // Guardar restaurante
   const handleAdd = async e => {
     e.preventDefault();
     const tempRest = { ...newRest, id: Date.now().toString() };
@@ -101,7 +97,6 @@ export default function Home() {
     }
   };
 
-  // Botones de navegación
   const handleInicio = () => {
     navigate("/");
   };
@@ -112,7 +107,6 @@ export default function Home() {
     navigate("/nuevo");
   };
 
-  // Filtrado solo en buscar
   const filtered = showSearchBox
     ? restaurants.filter(r =>
         r.name.toLowerCase().includes(searchInput.toLowerCase())
@@ -124,7 +118,6 @@ export default function Home() {
   return (
     <div className="container mt-4" style={{ maxWidth: 900 }}>
       <div className="mb-3 d-flex flex-column gap-2 flex-md-row align-items-center">
-        {/* Botón Buscar o caja de búsqueda */}
         {showSearchBox ? (
           <div className="input-group" style={{ maxWidth: 300 }}>
             <input
@@ -136,7 +129,7 @@ export default function Home() {
               autoFocus
             />
             <button
-              className="btn btn-outline-secondary"
+              className="btn btn-primary"
               type="button"
               onClick={handleInicio}
               title="Cerrar búsqueda"
@@ -156,18 +149,16 @@ export default function Home() {
             </button>
           )
         )}
-        {/* Botón Inicio */}
         <button
-          className="btn btn-secondary ms-md-2 mt-2 mt-md-0"
+          className="btn btn-primary ms-md-2 mt-2 mt-md-0"
           onClick={handleInicio}
           type="button"
         >
           Inicio
         </button>
-        {/* Botón Nuevo Restaurante */}
         {!showForm && (
           <button
-            className="btn btn-success ms-md-2 mt-2 mt-md-0"
+            className="btn btn-primary ms-md-2 mt-2 mt-md-0"
             onClick={handleNuevo}
             type="button"
           >
@@ -176,7 +167,6 @@ export default function Home() {
         )}
       </div>
 
-      {/* SOLO el formulario nuevo */}
       {showForm ? (
         <form className="mb-4" onSubmit={handleAdd}>
           <input
@@ -216,7 +206,10 @@ export default function Home() {
         </form>
       ) : (
         <>
-          <h2 className="mb-3">Restaurantes</h2>
+          {/* SOLO UN TÍTULO CON BARRA AZUL */}
+          <div className="barra-titulo-restaurantes">
+            <h2 className="mb-3 titulo-restaurantes">Restaurantes</h2>
+          </div>
           <div className="row row-cols-1 row-cols-md-2 g-5">
             {filtered.length === 0 ? (
               <div>No hay restaurantes registrados.</div>
@@ -226,7 +219,8 @@ export default function Home() {
                   key={r.id + r.name}
                   className="border rounded p-3 mb-4"
                   style={{
-                    background: "#f4f6f6",
+                    background: "linear-gradient(135deg, #ccd1d1 0%, #e0e0e0 100%)",
+                    color: "#222",
                     minHeight: 200,
                     flexDirection: "row",
                     gap: 45,
@@ -251,7 +245,7 @@ export default function Home() {
                   <div style={{ flex: 1 }}>
                     <strong style={{ fontSize: 22, display: "block", marginBottom: 8 }}>{r.name}</strong>
                     <div style={{ fontSize: 16, marginBottom: 6 }}>{r.desc}</div>
-                    <div style={{ fontSize: 14, color: "#555" }}>{r.addr}</div>
+                    <div style={{ fontSize: 14, color: "#444" }}>{r.addr}</div>
                   </div>
                 </div>
               ))
