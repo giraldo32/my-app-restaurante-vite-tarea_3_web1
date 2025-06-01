@@ -231,7 +231,7 @@ export default function Home() {
                     flexDirection: "row",
                     gap: 45,
                     boxShadow: "0 4px 16px rgba(52, 123, 210, 0.1)",
-                    maxWidth: 500,
+                    maxWidth: 300,
                     textAlign: "center",
                     margin: "0 auto",
                   }}
