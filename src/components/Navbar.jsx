@@ -1,4 +1,7 @@
 import { Link } from "react-router-dom";
+import { FaUtensils } from "react-icons/fa";
+
+const DARK_BLUE = "#0d2346";
 
 export default function Navbar() {
   return (
@@ -12,14 +15,19 @@ export default function Navbar() {
           boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
         }}
       >
-                <h1
+        <h1
           style={{
             fontWeight: "bold",
             color: "#212529", // gris más oscuro para el título
             margin: 0,
-            textAlign: "center"
+            textAlign: "center",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 12
           }}
         >
+          <FaUtensils style={{ color: DARK_BLUE }} />
           Restaurantes
         </h1>
       </div>

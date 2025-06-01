@@ -4,6 +4,11 @@ import { collection, getDocs, addDoc } from "firebase/firestore";
 import "./home.css";
 import { useNavigate, useLocation } from "react-router-dom";
 
+// ICONOS DE REACT-ICONS
+import { FaSearch, FaHome, FaPlus, FaTimes } from "react-icons/fa";
+
+const DARK_BLUE = "#0d2346";
+
 const restaurantesIniciales = [
   {
     id: "1",
@@ -129,39 +134,46 @@ export default function Home() {
               autoFocus
             />
             <button
-              className="btn btn-primary"
+              className="btn"
+              style={{ background: DARK_BLUE, color: "#fff", border: "none" }}
               type="button"
               onClick={handleInicio}
               title="Cerrar búsqueda"
             >
-              ✕
+              <FaTimes style={{ marginRight: 6, color: "#fff" }} />
+              Cerrar
             </button>
           </div>
         ) : (
           !showForm && (
             <button
-              className="btn btn-primary"
+              className="btn"
               type="button"
               onClick={handleBuscar}
-              style={{ maxWidth: 300 }}
+              style={{ maxWidth: 300, background: DARK_BLUE, color: "#fff", border: "none" }}
             >
+              <FaSearch style={{ marginRight: 6, color: "#fff" }} />
               Buscar
             </button>
           )
         )}
         <button
-          className="btn btn-primary ms-md-2 mt-2 mt-md-0"
+          className="btn ms-md-2 mt-2 mt-md-0"
           onClick={handleInicio}
           type="button"
+          style={{ background: DARK_BLUE, color: "#fff", border: "none" }}
         >
+          <FaHome style={{ marginRight: 6, color: "#fff" }} />
           Inicio
         </button>
         {!showForm && (
           <button
-            className="btn btn-primary ms-md-2 mt-2 mt-md-0"
+            className="btn ms-md-2 mt-2 mt-md-0"
             onClick={handleNuevo}
             type="button"
+            style={{ background: DARK_BLUE, color: "#fff", border: "none" }}
           >
+            <FaPlus style={{ marginRight: 6, color: "#fff" }} />
             Nuevo Restaurante
           </button>
         )}
@@ -201,15 +213,28 @@ export default function Home() {
             onChange={handleInput}
             required
           />
-          <button className="btn btn-primary" type="submit">Guardar</button>
-          <button className="btn btn-secondary ms-2" type="button" onClick={handleInicio}>Cancelar</button>
+          <button
+            className="btn"
+            type="submit"
+            style={{ background: DARK_BLUE, color: "#fff", border: "none" }}
+          >
+            <FaPlus style={{ marginRight: 6, color: "#fff" }} />
+            Guardar
+          </button>
+          <button
+            className="btn ms-2"
+            type="button"
+            onClick={handleInicio}
+            style={{ background: DARK_BLUE, color: "#fff", border: "none" }}
+          >
+            <FaTimes style={{ marginRight: 6, color: "#fff" }} />
+            Cancelar
+          </button>
         </form>
       ) : (
         <>
-          {/* SOLO UN TÍTULO CON BARRA AZUL */}
-          <div className="barra-titulo-restaurantes">
-            <h2 className="mb-3 titulo-restaurantes">Restaurantes</h2>
-          </div>
+          {/* Título e icono eliminados */}
+          <div style={{ height: 24, marginBottom: 16 }}></div>
           <div className="row row-cols-1 row-cols-md-2 g-5">
             {filtered.length === 0 ? (
               <div>No hay restaurantes registrados.</div>
