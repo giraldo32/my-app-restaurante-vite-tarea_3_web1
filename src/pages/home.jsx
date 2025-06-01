@@ -247,8 +247,11 @@ export default function Home() {
                     background: "linear-gradient(135deg, #ccd1d1 0%, #e0e0e0 100%)",
                     color: "#222",
                     minHeight: 200,
-                    flexDirection: "row",
-                    gap: 45,
+                    display: "flex",
+                    flexDirection: "column", // Cambia a columna
+                    alignItems: "center",    // Centra horizontalmente
+                    justifyContent: "center",// Centra verticalmente
+                    gap: 16,
                     boxShadow: "0 4px 16px rgba(52, 123, 210, 0.1)",
                     maxWidth: 300,
                     textAlign: "center",
@@ -263,8 +266,8 @@ export default function Home() {
                       height: 180,
                       objectFit: "cover",
                       borderRadius: 12,
-                      marginRight: 32,
-                      flexShrink: 0
+                      margin: "0 auto", // Centra la imagen
+                      display: "block"
                     }}
                   />
                   <div style={{ flex: 1 }}>
