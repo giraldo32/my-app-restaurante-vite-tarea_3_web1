@@ -176,7 +176,7 @@ export default function Home() {
         )}
       </div>
 
-      {/* SOLO el formulario en /nuevo */}
+      {/* SOLO el formulario nuevo */}
       {showForm ? (
         <form className="mb-4" onSubmit={handleAdd}>
           <input
