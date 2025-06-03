@@ -3,7 +3,7 @@ import { db } from "../firebase/firebaseConfig";
 import { collection, getDocs, addDoc, updateDoc, doc, setDoc } from "firebase/firestore";
 import "./home.css";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FaSearch, FaHome, FaPlus, FaTimes, FaStar } from "react-icons/fa";
+import { FaSearch, FaHome, FaPlus, FaTimes, FaStar, FaSave } from "react-icons/fa";
 
 const DARK_BLUE = "#0d2346";
 
@@ -218,12 +218,13 @@ export default function Home() {
         </div>
       )}
 
-      <div className="mb-3 d-flex flex-column gap-2 flex-md-row align-items-center">
+      {/* Botones centrados */}
+      <div className="mb-3 d-flex flex-wrap justify-content-center gap-2 align-items-center">
         {showSearchBox ? (
-          <div className="input-group" style={{ maxWidth: 300 }}>
+          <div className="input-group" style={{ maxWidth: 400 }}>
             <input
               type="text"
-              placeholder="Buscar restaurante, descripción, dirección o calificación..."
+              placeholder="Buscar restaurante..." 
               className="form-control"
               value={searchInput}
               onChange={handleSearchInput}
@@ -256,7 +257,7 @@ export default function Home() {
               className="btn"
               type="button"
               onClick={handleBuscar}
-              style={{ maxWidth: 300, background: DARK_BLUE, color: "#fff", border: "none" }}
+              style={{ background: DARK_BLUE, color: "#fff", border: "none" }}
             >
               <FaSearch style={{ marginRight: 6, color: "#fff" }} />
               Buscar
@@ -264,7 +265,7 @@ export default function Home() {
           )
         )}
         <button
-          className="btn ms-md-2 mt-2 mt-md-0"
+          className="btn"
           onClick={handleInicio}
           type="button"
           style={{ background: DARK_BLUE, color: "#fff", border: "none" }}
@@ -274,7 +275,7 @@ export default function Home() {
         </button>
         {!showForm && !showSearchBox && (
           <button
-            className="btn ms-md-2 mt-2 mt-md-0"
+            className="btn"
             onClick={handleNuevo}
             type="button"
             style={{ background: DARK_BLUE, color: "#fff", border: "none" }}
@@ -358,7 +359,7 @@ export default function Home() {
                     type="submit"
                     style={{ background: DARK_BLUE, color: "#fff", border: "none", minWidth: 110 }}
                   >
-                    <FaPlus style={{ marginRight: 6, color: "#fff" }} />
+                    <FaSave style={{ marginRight: 6, color: "#fff" }} />
                     Guardar
                   </button>
                   <button
@@ -377,105 +378,104 @@ export default function Home() {
         </div>
       )}
 
-     {showForm ? (
-  <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "60vh" }}>
-    <div className="card-nuevo-restaurante">
-      <div className="card-body">
-        <h3>
-          <FaPlus style={{ marginRight: 8, color: DARK_BLUE }} />
-          Nuevo Restaurante
-        </h3>
-        <form onSubmit={handleAdd} style={{ width: "100%" }}>
-          <div className="mb-2">
-            <label className="form-label">Nombre</label>
-            <input
-              name="name"
-              placeholder="Nombre"
-              className="form-control"
-              value={newRest.name}
-              onChange={handleInput}
-              required
-            />
+      {showForm ? (
+        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "60vh" }}>
+          <div className="card-nuevo-restaurante">
+            <div className="card-body">
+              <h3>
+                <FaPlus style={{ marginRight: 8, color: DARK_BLUE }} />
+                Nuevo Restaurante
+              </h3>
+              <form onSubmit={handleAdd} style={{ width: "100%" }}>
+                <div className="mb-2">
+                  <label className="form-label">Nombre</label>
+                  <input
+                    name="name"
+                    placeholder="Nombre"
+                    className="form-control"
+                    value={newRest.name}
+                    onChange={handleInput}
+                    required
+                  />
+                </div>
+                <div className="mb-2">
+                  <label className="form-label">Descripción</label>
+                  <input
+                    name="desc"
+                    placeholder="Descripción"
+                    className="form-control"
+                    value={newRest.desc}
+                    onChange={handleInput}
+                    required
+                  />
+                </div>
+                <div className="mb-2">
+                  <label className="form-label">Dirección</label>
+                  <input
+                    name="addr"
+                    placeholder="Dirección"
+                    className="form-control"
+                    value={newRest.addr}
+                    onChange={handleInput}
+                    required
+                  />
+                </div>
+                <div className="mb-2">
+                  <label className="form-label">URL de la imagen</label>
+                  <input
+                    name="img"
+                    placeholder="URL de la imagen"
+                    className="form-control"
+                    value={newRest.img}
+                    onChange={handleInput}
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Calificación (1-5)</label>
+                  <input
+                    type="number"
+                    name="rating"
+                    placeholder="Calificación (1-5)"
+                    className="form-control"
+                    value={newRest.rating}
+                    onChange={handleInput}
+                    min={1}
+                    max={5}
+                    required
+                  />
+                </div>
+                <div className="d-flex justify-content-between mt-2">
+                  <button
+                    className="btn"
+                    type="submit"
+                    style={{
+                      background: DARK_BLUE,
+                      color: "#fff",
+                      border: "none"
+                    }}
+                  >
+                    <FaSave style={{ marginRight: 6, color: "#fff" }} />
+                    Guardar
+                  </button>
+                  <button
+                    className="btn"
+                    type="button"
+                    onClick={handleInicio}
+                    style={{
+                      background: "#fff",
+                      color: DARK_BLUE,
+                      border: `2px solid ${DARK_BLUE}`
+                    }}
+                  >
+                    <FaTimes style={{ marginRight: 6, color: DARK_BLUE }} />
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-          <div className="mb-2">
-            <label className="form-label">Descripción</label>
-            <input
-              name="desc"
-              placeholder="Descripción"
-              className="form-control"
-              value={newRest.desc}
-              onChange={handleInput}
-              required
-            />
-          </div>
-          <div className="mb-2">
-            <label className="form-label">Dirección</label>
-            <input
-              name="addr"
-              placeholder="Dirección"
-              className="form-control"
-              value={newRest.addr}
-              onChange={handleInput}
-              required
-            />
-          </div>
-          <div className="mb-2">
-            <label className="form-label">URL de la imagen</label>
-            <input
-              name="img"
-              placeholder="URL de la imagen"
-              className="form-control"
-              value={newRest.img}
-              onChange={handleInput}
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <label className="form-label">Calificación (1-5)</label>
-            <input
-              type="number"
-              name="rating"
-              placeholder="Calificación (1-5)"
-              className="form-control"
-              value={newRest.rating}
-              onChange={handleInput}
-              min={1}
-              max={5}
-              required
-            />
-          </div>
-          <div className="d-flex justify-content-between mt-2">
-            <button
-              className="btn"
-              type="submit"
-              style={{
-                background: DARK_BLUE,
-                color: "#fff",
-                border: "none"
-              }}
-            >
-              <FaPlus style={{ marginRight: 6, color: "#fff" }} />
-              Guardar
-            </button>
-            <button
-              className="btn"
-              type="button"
-              onClick={handleInicio}
-              style={{
-                background: "#fff",
-                color: DARK_BLUE,
-                border: `2px solid ${DARK_BLUE}`
-              }}
-            >
-              <FaTimes style={{ marginRight: 6, color: DARK_BLUE }} />
-              Cancelar
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
+        </div>
       ) : (
         <>
           <div style={{ height: 24, marginBottom: 16 }}></div>
@@ -527,7 +527,7 @@ export default function Home() {
                         />
                       ))}
                     </div>
-                    <div style={{ fontSize: 16, marginBottom: 6 }}>{r.desc}</div>
+                    <div style={{ fontSize: 16, marginBottom: 6, whiteSpace: "pre-line", wordBreak: "break-word" }}>{r.desc}</div>
                     <div style={{ fontSize: 14, color: "#444" }}>{r.addr}</div>
                   </div>
                 </div>
