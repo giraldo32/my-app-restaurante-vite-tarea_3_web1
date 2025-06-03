@@ -1,40 +1,49 @@
 import { useEffect, useState } from "react";
 import { db } from "../firebase/firebaseConfig";
-import { collection, getDocs, addDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc, updateDoc, doc, setDoc } from "firebase/firestore";
 import "./home.css";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FaSearch, FaHome, FaPlus, FaTimes } from "react-icons/fa";
+import { FaSearch, FaHome, FaPlus, FaTimes, FaStar } from "react-icons/fa";
 
 const DARK_BLUE = "#0d2346";
 
+// Restaurantes quemados con un campo extra: isBurned: true
 const restaurantesIniciales = [
   {
     id: "1",
     name: "La Parrilla del Chef",
     desc: "Especialidad en carnes a la brasa.",
     addr: "Av. Principal 123",
-    img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836"
+    img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
+    rating: 4,
+    isBurned: true
   },
   {
     id: "2",
     name: "Sabor a México",
     desc: "Auténtica comida mexicana.",
     addr: "Calle 8 #45-67",
-    img: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0"
+    img: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0",
+    rating: 5,
+    isBurned: true
   },
   {
     id: "3",
     name: "Pasta & Basta",
     desc: "Pastas y pizzas artesanales.",
     addr: "Carrera 10 #20-30",
-    img: "https://www.unileverfoodsolutions.com.co/dam/global-ufs/mcos/NOLA/calcmenu/recipes/col-recipies/italiana/PASTA%20CON%20POLLO%20TOCINETA%20Y%20BECHAMEL-1200x709.jpg"
+    img: "https://www.unileverfoodsolutions.com.co/dam/global-ufs/mcos/NOLA/calcmenu/recipes/col-recipies/italiana/PASTA%20CON%20POLLO%20TOCINETA%20Y%20BECHAMEL-1200x709.jpg",
+    rating: 3,
+    isBurned: true
   },
   {
     id: "4",
     name: "El Mar de Sabores",
     desc: "Pescados y mariscos frescos.",
     addr: "Calle del Mar 50",
-    img: "https://verestmagazine.com/wp-content/uploads/2023/04/Cuaresma-Bellopuerto-1024x683.jpg"
+    img: "https://verestmagazine.com/wp-content/uploads/2023/04/Cuaresma-Bellopuerto-1024x683.jpg",
+    rating: 4,
+    isBurned: true
   }
 ];
 
@@ -48,8 +57,10 @@ export default function Home() {
     name: "",
     desc: "",
     addr: "",
-    img: ""
+    img: "",
+    rating: ""
   });
+  const [userRatings, setUserRatings] = useState({});
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -57,14 +68,34 @@ export default function Home() {
   const showSearchBox = location.pathname === "/buscar";
   const showForm = location.pathname === "/nuevo";
 
+  // Al iniciar, sube los restaurantes quemados a la base de datos si no existen
+  const syncBurnedToFirestore = async () => {
+    const snapshot = await getDocs(collection(db, "restaurants"));
+    const idsFirestore = snapshot.docs.map(doc => doc.id);
+    for (const rest of restaurantesIniciales) {
+      // Si no existe en Firestore, lo sube con el id fijo
+      if (!idsFirestore.includes(rest.id)) {
+        await setDoc(doc(db, "restaurants", rest.id), {
+          name: rest.name,
+          desc: rest.desc,
+          addr: rest.addr,
+          img: rest.img,
+          rating: rest.rating,
+          isBurned: true
+        });
+      }
+    }
+  };
+
   const fetchRestaurants = async () => {
     try {
+      await syncBurnedToFirestore();
       const snapshot = await getDocs(collection(db, "restaurants"));
       const data = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-      setRestaurants([...restaurantesIniciales, ...data]);
+      setRestaurants(data);
     } catch (err) {
       setError("Error al cargar los restaurantes.");
     } finally {
@@ -79,7 +110,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!showSearchBox) setSearchInput("");
-    if (!showForm) setNewRest({ name: "", desc: "", addr: "", img: "" });
+    if (!showForm) setNewRest({ name: "", desc: "", addr: "", img: "", rating: "" });
     // eslint-disable-next-line
   }, [location.pathname]);
 
@@ -89,19 +120,17 @@ export default function Home() {
 
   const handleAdd = async e => {
     e.preventDefault();
-    const tempRest = { ...newRest, id: Date.now().toString() };
-    setRestaurants(prev => [tempRest, ...prev]);
-    setNewRest({ name: "", desc: "", addr: "", img: "" });
-    setSuccess(null); // Limpiar mensaje previo
+    setSuccess(null);
     navigate("/");
     try {
-      await addDoc(collection(db, "restaurants"), newRest);
+      await addDoc(collection(db, "restaurants"), { ...newRest, rating: Number(newRest.rating) || 0 });
       setSuccess("¡Restaurante guardado exitosamente!");
       fetchRestaurants();
-      setTimeout(() => setSuccess(null), 3000); // Ocultar mensaje después de 3 segundos
+      setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       setError("Error al guardar el restaurante.");
     }
+    setNewRest({ name: "", desc: "", addr: "", img: "", rating: "" });
   };
 
   const handleInicio = () => {
@@ -114,6 +143,31 @@ export default function Home() {
     navigate("/nuevo");
   };
 
+  // Calificación por el cliente y guardado en Firestore
+  const handleStarClick = async (restId, starIndex) => {
+    const newRating = starIndex + 1;
+    setUserRatings(prev => ({
+      ...prev,
+      [restId]: newRating
+    }));
+
+    setRestaurants(prev =>
+      prev.map(r =>
+        r.id === restId ? { ...r, rating: newRating } : r
+      )
+    );
+
+    // Actualiza en Firestore para cualquier restaurante (quemado o agregado)
+    try {
+      const restDoc = doc(db, "restaurants", restId);
+      await updateDoc(restDoc, { rating: newRating });
+      setSuccess("¡Calificación guardada!");
+      setTimeout(() => setSuccess(null), 2000);
+    } catch (err) {
+      setError("Error al guardar la calificación.");
+    }
+  };
+
   const filtered = showSearchBox
     ? restaurants.filter(r =>
         r.name.toLowerCase().includes(searchInput.toLowerCase())
@@ -124,7 +178,6 @@ export default function Home() {
 
   return (
     <div className="container mt-4" style={{ maxWidth: 900 }}>
-      {/* Mensaje de éxito */}
       {success && (
         <div className="alert alert-success text-center" style={{ fontWeight: "bold" }}>
           {success}
@@ -238,6 +291,17 @@ export default function Home() {
                 onChange={handleInput}
                 required
               />
+              <input
+                type="number"
+                name="rating"
+                placeholder="Calificación (1-5)"
+                className="form-control mb-3"
+                value={newRest.rating}
+                onChange={handleInput}
+                min={1}
+                max={5}
+                required
+              />
               <div className="d-flex justify-content-between">
                 <button
                   className="btn"
@@ -300,6 +364,17 @@ export default function Home() {
                   />
                   <div style={{ flex: 1 }}>
                     <strong style={{ fontSize: 22, display: "block", marginBottom: 8 }}>{r.name}</strong>
+                    <div>
+                      {[...Array(5)].map((_, i) => (
+                        <FaStar
+                          key={i}
+                          color={i < (userRatings[r.id] ?? r.rating ?? 0) ? DARK_BLUE : "#ccc"}
+                          style={{ marginRight: 2, cursor: "pointer", transition: "color 0.2s" }}
+                          onClick={() => handleStarClick(r.id, i)}
+                          title={`Calificar con ${i + 1} estrellas`}
+                        />
+                      ))}
+                    </div>
                     <div style={{ fontSize: 16, marginBottom: 6 }}>{r.desc}</div>
                     <div style={{ fontSize: 14, color: "#444" }}>{r.addr}</div>
                   </div>

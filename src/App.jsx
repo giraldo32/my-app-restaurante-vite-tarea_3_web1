@@ -4,6 +4,8 @@ import Home from "./pages/home";
 import Search from "./pages/Search";
 import NewRestaurant from "./pages/NewRestaurant";
 import "bootstrap/dist/css/bootstrap.min.css";
+import './styles/styles.css';
+
 
 export default function App() {
   return (
