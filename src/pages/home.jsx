@@ -61,6 +61,14 @@ export default function Home() {
     rating: ""
   });
   const [userRatings, setUserRatings] = useState({});
+  const [showAddInSearch, setShowAddInSearch] = useState(false);
+  const [searchRest, setSearchRest] = useState({
+    name: "",
+    desc: "",
+    addr: "",
+    img: "",
+    rating: ""
+  });
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -118,6 +126,10 @@ export default function Home() {
     setNewRest({ ...newRest, [e.target.name]: e.target.value });
   };
 
+  const handleSearchInput = e => {
+    setSearchInput(e.target.value);
+  };
+
   const handleAdd = async e => {
     e.preventDefault();
     setSuccess(null);
@@ -131,6 +143,21 @@ export default function Home() {
       setError("Error al guardar el restaurante.");
     }
     setNewRest({ name: "", desc: "", addr: "", img: "", rating: "" });
+  };
+
+  const handleAddFromSearch = async e => {
+    e.preventDefault();
+    setSuccess(null);
+    setShowAddInSearch(false);
+    try {
+      await addDoc(collection(db, "restaurants"), { ...searchRest, rating: Number(searchRest.rating) || 0 });
+      setSuccess("¡Restaurante guardado exitosamente!");
+      fetchRestaurants();
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err) {
+      setError("Error al guardar el restaurante.");
+    }
+    setSearchRest({ name: "", desc: "", addr: "", img: "", rating: "" });
   };
 
   const handleInicio = () => {
@@ -168,10 +195,17 @@ export default function Home() {
     }
   };
 
+  // Filtro por nombre, descripción, dirección o calificación
   const filtered = showSearchBox
-    ? restaurants.filter(r =>
-        r.name.toLowerCase().includes(searchInput.toLowerCase())
-      )
+    ? restaurants.filter(r => {
+        const search = searchInput.toLowerCase();
+        return (
+          r.name.toLowerCase().includes(search) ||
+          (r.desc && r.desc.toLowerCase().includes(search)) ||
+          (r.addr && r.addr.toLowerCase().includes(search)) ||
+          (r.rating && r.rating.toString().includes(search))
+        );
+      })
     : restaurants;
 
   if (error) return <div>{error}</div>;
@@ -189,10 +223,10 @@ export default function Home() {
           <div className="input-group" style={{ maxWidth: 300 }}>
             <input
               type="text"
-              placeholder="Buscar restaurante..."
+              placeholder="Buscar restaurante, descripción, dirección o calificación..."
               className="form-control"
               value={searchInput}
-              onChange={e => setSearchInput(e.target.value)}
+              onChange={handleSearchInput}
               autoFocus
             />
             <button
@@ -204,6 +238,16 @@ export default function Home() {
             >
               <FaTimes style={{ marginRight: 6, color: "#fff" }} />
               Cerrar
+            </button>
+            <button
+              className="btn ms-2"
+              style={{ background: DARK_BLUE, color: "#fff", border: "none" }}
+              type="button"
+              onClick={() => setShowAddInSearch(true)}
+              title="Agregar restaurante"
+            >
+              <FaPlus style={{ marginRight: 6, color: "#fff" }} />
+              Agregar
             </button>
           </div>
         ) : (
@@ -228,7 +272,7 @@ export default function Home() {
           <FaHome style={{ marginRight: 6, color: "#fff" }} />
           Inicio
         </button>
-        {!showForm && (
+        {!showForm && !showSearchBox && (
           <button
             className="btn ms-md-2 mt-2 mt-md-0"
             onClick={handleNuevo}
@@ -241,89 +285,197 @@ export default function Home() {
         )}
       </div>
 
-      {showForm ? (
+      {/* Card para agregar restaurante desde buscar */}
+      {showAddInSearch && (
         <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "60vh" }}>
           <div
             className="card shadow"
             style={{
-              maxWidth: 400,
+              maxWidth: 420,
               width: "100%",
-              padding: 32,
-              borderRadius: 16,
+              padding: 0,
+              borderRadius: 18,
               background: "#f8f9fa",
-              border: `2px solid ${DARK_BLUE}`
+              border: `2px solid ${DARK_BLUE}`,
+              boxShadow: "0 8px 32px rgba(13,35,70,0.12)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center"
             }}
           >
-            <h3 style={{ color: DARK_BLUE, textAlign: "center", marginBottom: 24 }}>
-              <FaPlus style={{ marginRight: 8, color: DARK_BLUE }} />
-              Nuevo Restaurante
-            </h3>
-            <form onSubmit={handleAdd}>
-              <input
-                name="name"
-                placeholder="Nombre"
-                className="form-control mb-3"
-                value={newRest.name}
-                onChange={handleInput}
-                required
-              />
-              <input
-                name="desc"
-                placeholder="Descripción"
-                className="form-control mb-3"
-                value={newRest.desc}
-                onChange={handleInput}
-                required
-              />
-              <input
-                name="addr"
-                placeholder="Dirección"
-                className="form-control mb-3"
-                value={newRest.addr}
-                onChange={handleInput}
-                required
-              />
-              <input
-                name="img"
-                placeholder="URL de la imagen"
-                className="form-control mb-3"
-                value={newRest.img}
-                onChange={handleInput}
-                required
-              />
-              <input
-                type="number"
-                name="rating"
-                placeholder="Calificación (1-5)"
-                className="form-control mb-3"
-                value={newRest.rating}
-                onChange={handleInput}
-                min={1}
-                max={5}
-                required
-              />
-              <div className="d-flex justify-content-between">
-                <button
-                  className="btn"
-                  type="submit"
-                  style={{ background: DARK_BLUE, color: "#fff", border: "none", minWidth: 110 }}
-                >
-                  <FaPlus style={{ marginRight: 6, color: "#fff" }} />
-                  Guardar
-                </button>
-                <button
-                  className="btn"
-                  type="button"
-                  onClick={handleInicio}
-                  style={{ background: DARK_BLUE, color: "#fff", border: "none", minWidth: 110 }}
-                >
-                  <FaTimes style={{ marginRight: 6, color: "#fff" }} />
-                  Cancelar
-                </button>
-              </div>
-            </form>
+            <div style={{ width: "100%", padding: "32px 32px 16px 32px" }}>
+              <h3 style={{ color: DARK_BLUE, textAlign: "center", marginBottom: 24 }}>
+                <FaPlus style={{ marginRight: 8, color: DARK_BLUE }} />
+                Agregar Restaurante
+              </h3>
+              <form onSubmit={handleAddFromSearch}>
+                <input
+                  name="name"
+                  placeholder="Nombre"
+                  className="form-control mb-3"
+                  value={searchRest.name}
+                  onChange={e => setSearchRest({ ...searchRest, name: e.target.value })}
+                  required
+                />
+                <input
+                  name="desc"
+                  placeholder="Descripción"
+                  className="form-control mb-3"
+                  value={searchRest.desc}
+                  onChange={e => setSearchRest({ ...searchRest, desc: e.target.value })}
+                  required
+                />
+                <input
+                  name="addr"
+                  placeholder="Dirección"
+                  className="form-control mb-3"
+                  value={searchRest.addr}
+                  onChange={e => setSearchRest({ ...searchRest, addr: e.target.value })}
+                  required
+                />
+                <input
+                  name="img"
+                  placeholder="URL de la imagen"
+                  className="form-control mb-3"
+                  value={searchRest.img}
+                  onChange={e => setSearchRest({ ...searchRest, img: e.target.value })}
+                  required
+                />
+                <input
+                  type="number"
+                  name="rating"
+                  placeholder="Calificación (1-5)"
+                  className="form-control mb-3"
+                  value={searchRest.rating}
+                  onChange={e => setSearchRest({ ...searchRest, rating: e.target.value })}
+                  min={1}
+                  max={5}
+                  required
+                />
+                <div className="d-flex justify-content-between mt-3">
+                  <button
+                    className="btn"
+                    type="submit"
+                    style={{ background: DARK_BLUE, color: "#fff", border: "none", minWidth: 110 }}
+                  >
+                    <FaPlus style={{ marginRight: 6, color: "#fff" }} />
+                    Guardar
+                  </button>
+                  <button
+                    className="btn"
+                    type="button"
+                    onClick={() => setShowAddInSearch(false)}
+                    style={{ background: DARK_BLUE, color: "#fff", border: "none", minWidth: 110 }}
+                  >
+                    <FaTimes style={{ marginRight: 6, color: "#fff" }} />
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
+      )}
+
+     {showForm ? (
+  <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "60vh" }}>
+    <div className="card-nuevo-restaurante">
+      <div className="card-body">
+        <h3>
+          <FaPlus style={{ marginRight: 8, color: DARK_BLUE }} />
+          Nuevo Restaurante
+        </h3>
+        <form onSubmit={handleAdd} style={{ width: "100%" }}>
+          <div className="mb-2">
+            <label className="form-label">Nombre</label>
+            <input
+              name="name"
+              placeholder="Nombre"
+              className="form-control"
+              value={newRest.name}
+              onChange={handleInput}
+              required
+            />
+          </div>
+          <div className="mb-2">
+            <label className="form-label">Descripción</label>
+            <input
+              name="desc"
+              placeholder="Descripción"
+              className="form-control"
+              value={newRest.desc}
+              onChange={handleInput}
+              required
+            />
+          </div>
+          <div className="mb-2">
+            <label className="form-label">Dirección</label>
+            <input
+              name="addr"
+              placeholder="Dirección"
+              className="form-control"
+              value={newRest.addr}
+              onChange={handleInput}
+              required
+            />
+          </div>
+          <div className="mb-2">
+            <label className="form-label">URL de la imagen</label>
+            <input
+              name="img"
+              placeholder="URL de la imagen"
+              className="form-control"
+              value={newRest.img}
+              onChange={handleInput}
+              required
+            />
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Calificación (1-5)</label>
+            <input
+              type="number"
+              name="rating"
+              placeholder="Calificación (1-5)"
+              className="form-control"
+              value={newRest.rating}
+              onChange={handleInput}
+              min={1}
+              max={5}
+              required
+            />
+          </div>
+          <div className="d-flex justify-content-between mt-2">
+            <button
+              className="btn"
+              type="submit"
+              style={{
+                background: DARK_BLUE,
+                color: "#fff",
+                border: "none"
+              }}
+            >
+              <FaPlus style={{ marginRight: 6, color: "#fff" }} />
+              Guardar
+            </button>
+            <button
+              className="btn"
+              type="button"
+              onClick={handleInicio}
+              style={{
+                background: "#fff",
+                color: DARK_BLUE,
+                border: `2px solid ${DARK_BLUE}`
+              }}
+            >
+              <FaTimes style={{ marginRight: 6, color: DARK_BLUE }} />
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
       ) : (
         <>
           <div style={{ height: 24, marginBottom: 16 }}></div>
