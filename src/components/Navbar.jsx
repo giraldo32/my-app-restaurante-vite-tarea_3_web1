@@ -8,7 +8,7 @@ export default function Navbar() {
     <nav style={{ background: "#f8f9fa", padding: "16px 0", marginBottom: 50 }}>
       <div
         style={{
-          background: "#dee2e6", // gris más oscuro, igual que el de las cards de Bootstrap
+          background: "#dee2e6",
           width: "100vw",
           marginLeft: "calc(-50vw + 50%)",
           padding: "12px 0",
@@ -18,7 +18,7 @@ export default function Navbar() {
         <h1
           style={{
             fontWeight: "bold",
-            color: "#212529", // gris más oscuro para el título
+            color: "#212529", 
             margin: 0,
             textAlign: "center",
             display: "flex",

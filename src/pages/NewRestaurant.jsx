@@ -16,7 +16,7 @@ export default function Home() {
     img: ""
   });
 
-  // Cargar restaurantes desde Firebase
+  
   const fetchRestaurants = async () => {
     try {
       const snapshot = await getDocs(collection(db, "restaurants"));
@@ -34,14 +34,14 @@ export default function Home() {
 
   useEffect(() => {
     fetchRestaurants();
-    // eslint-disable-next-line
+    
   }, []);
 
   const handleInput = e => {
     setNewRest({ ...newRest, [e.target.name]: e.target.value });
   };
 
-  // Guardar restaurante en Firebase y mostrarlo inmediatamente
+  
   const handleAdd = async e => {
     e.preventDefault();
     try {

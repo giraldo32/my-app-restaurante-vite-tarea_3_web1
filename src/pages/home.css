@@ -22,20 +22,18 @@
   flex-direction: column;
   justify-content: center;
 }
-/* ...existing code... */
+
 .cards-container {
-  /* max-width:50px;  <-- Elimina o comenta esta línea */
+ 
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
   justify-items: center;
   align-items: center;
 }
-/* ...existing code... */
-body{
-  background-color: rgb(137, 30, 237);
-}
-/* ...existing code... */
+
+
+
 .card-nuevo-restaurante {
   width: 370px;
   height: 410px;
@@ -52,7 +50,7 @@ body{
 
 .card-nuevo-restaurante .card-body {
   width: 100%;
-  padding: 18px 28px 16px 28px; /* Menos padding arriba */
+  padding: 18px 28px 16px 28px; 
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -61,7 +59,7 @@ body{
 .card-nuevo-restaurante h3 {
   color: #0d2346;
   text-align: center;
-  margin-bottom: 20px; /* Menos margen abajo */
+  margin-bottom: 20px; 
   margin-top: 0;
   font-weight: bold;
   letter-spacing: 1px;

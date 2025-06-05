@@ -7,7 +7,7 @@ import { FaSearch, FaHome, FaPlus, FaTimes, FaStar, FaSave } from "react-icons/f
 
 const DARK_BLUE = "#0d2346";
 
-// Restaurantes quemados con un campo extra: isBurned: true
+
 const restaurantesIniciales = [
   {
     id: "1",
@@ -68,12 +68,12 @@ export default function Home() {
   const showSearchBox = location.pathname === "/buscar";
   const showForm = location.pathname === "/nuevo";
 
-  // Al iniciar, sube los restaurantes quemados a la base de datos si no existen
+  
   const syncBurnedToFirestore = async () => {
     const snapshot = await getDocs(collection(db, "restaurants"));
     const idsFirestore = snapshot.docs.map(doc => doc.id);
     for (const rest of restaurantesIniciales) {
-      // Si no existe en Firestore, lo sube con el id fijo
+      
       if (!idsFirestore.includes(rest.id)) {
         await setDoc(doc(db, "restaurants", rest.id), {
           name: rest.name,
@@ -105,13 +105,13 @@ export default function Home() {
 
   useEffect(() => {
     fetchRestaurants();
-    // eslint-disable-next-line
+    
   }, []);
 
   useEffect(() => {
     if (!showSearchBox) setSearchInput("");
     if (!showForm) setNewRest({ name: "", desc: "", addr: "", img: "", rating: "" });
-    // eslint-disable-next-line
+    
   }, [location.pathname]);
 
   const handleInput = e => {
@@ -147,7 +147,7 @@ export default function Home() {
     navigate("/nuevo");
   };
 
-  // Calificación por el cliente y guardado en Firestore
+ 
   const handleStarClick = async (restId, starIndex) => {
     const newRating = starIndex + 1;
     setUserRatings(prev => ({
@@ -161,7 +161,7 @@ export default function Home() {
       )
     );
 
-    // Actualiza en Firestore para cualquier restaurante (quemado o agregado)
+    
     try {
       const restDoc = doc(db, "restaurants", restId);
       await updateDoc(restDoc, { rating: newRating });
@@ -172,7 +172,7 @@ export default function Home() {
     }
   };
 
-  // Filtro por nombre, descripción, dirección o calificación
+  
   const filtered = showSearchBox
     ? restaurants.filter(r => {
         const search = searchInput.toLowerCase();
@@ -195,7 +195,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Botones centrados */}
+     
       <div className="mb-3 d-flex flex-wrap justify-content-center gap-2 align-items-center">
         {showSearchBox ? (
           <div className="input-group" style={{ maxWidth: 400 }}>

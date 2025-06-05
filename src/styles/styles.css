@@ -1,4 +1,4 @@
-/* Puedes ajustar los valores según tu preferencia */
+
 .card {
   display: flex;
   flex-direction: row;
@@ -20,7 +20,7 @@
 }
 body {
   min-height: 100vh;
-  background: #219432; /* Verde matiz oscuro */
+  background: #219432; 
   background-attachment: fixed;
   margin: 0;
   padding: 0;

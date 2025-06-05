@@ -1,12 +1,9 @@
-import { getFirestore } from "firebase/firestore"; // ← AGREGA ESTA LÍNEAnpm 
-// Import the functions you need from the SDKs you need
+import { getFirestore } from "firebase/firestore"; 
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+
+
 const firebaseConfig = {
   apiKey: "AIzaSyDKnaa1sQqL23Z8lZPebgBdtFA-WPzygFs",
   authDomain: "restaurante-proyecto-3.firebaseapp.com",
@@ -17,10 +14,9 @@ const firebaseConfig = {
   measurementId: "G-1PLCBMR4SG"
 };
 
-// Initialize Firebase
+
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 export const db = getFirestore(app);
 
-// REVISAR LAS REGLAS DE SEGURIDAD DE FIRESTORE EN LA CONSOLA DE FIREBASE
-// Asegúrate de que las reglas permitan a la aplicación leer y escribir en la colección "restaurants".
+
