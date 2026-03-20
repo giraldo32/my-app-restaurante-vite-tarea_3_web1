@@ -1,8 +1,50 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Reglas para app desplegada en Render (frontend publico).
+    // Lectura publica; escritura limitada y validada para restaurantes.
+    match /restaurants/{restaurantId} {
+      allow read: if true;
+      allow create: if isValidRestaurant(request.resource.data);
+      allow update: if isValidRestaurant(request.resource.data);
+      allow delete: if false;
+    }
+
+    // Bloquea cualquier otra coleccion por defecto.
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
+    }
+
+    function isValidRestaurant(data) {
+      return data.keys().hasOnly([
+          'name',
+          'desc',
+          'addr',
+          'img',
+          'rating',
+          'isBurned',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasAll(['name', 'desc', 'addr', 'img', 'rating'])
+        && data.name is string
+        && data.name.size() > 0
+        && data.name.size() <= 120
+        && data.desc is string
+        && data.desc.size() > 0
+        && data.desc.size() <= 500
+        && data.addr is string
+        && data.addr.size() > 0
+        && data.addr.size() <= 200
+        && data.img is string
+        && data.img.size() > 0
+        && data.img.size() <= 1000
+        && data.rating is number
+        && data.rating >= 0
+        && data.rating <= 5
+        && (!data.keys().hasAny(['isBurned']) || data.isBurned is bool)
+        && (!data.keys().hasAny(['createdAt']) || data.createdAt is string)
+        && (!data.keys().hasAny(['updatedAt']) || data.updatedAt is string);
     }
   }
 }
