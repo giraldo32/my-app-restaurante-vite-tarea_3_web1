@@ -6,7 +6,7 @@ import NewRestaurant from "./pages/NewRestaurant";
 import "bootstrap/dist/css/bootstrap.min.css";
 import './styles/styles.css';
 
-
+//g//
 export default function App() {
   return (
     <BrowserRouter>
