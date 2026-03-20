@@ -6,16 +6,23 @@ export default function Search() {
   const [restaurants, setRestaurants] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const getData = async () => {
-      const snapshot = await getDocs(collection(db, "restaurants"));
-      const data = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setRestaurants(data);
-      setLoading(false);
+      try {
+        const snapshot = await getDocs(collection(db, "restaurants"));
+        const data = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setRestaurants(data);
+      } catch (err) {
+        const firebaseCode = err?.code ? ` (${err.code})` : "";
+        setError(`No se pudieron cargar los restaurantes${firebaseCode}.`);
+      } finally {
+        setLoading(false);
+      }
     };
     getData();
   }, []);
@@ -39,6 +46,10 @@ export default function Search() {
         {loading ? (
           <div>
             <p>Cargando restaurantes...</p>
+          </div>
+        ) : error ? (
+          <div>
+            <p>{error}</p>
           </div>
         ) : filtered.length === 0 ? (
           <div>

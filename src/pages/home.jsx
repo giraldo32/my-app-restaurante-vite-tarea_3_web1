@@ -89,7 +89,13 @@ export default function Home() {
 
   const fetchRestaurants = async () => {
     try {
-      await syncBurnedToFirestore();
+      // Si la escritura inicial falla por reglas, intentamos igualmente la lectura.
+      try {
+        await syncBurnedToFirestore();
+      } catch (seedError) {
+        console.warn("No se pudo sincronizar restaurantes iniciales:", seedError);
+      }
+
       const snapshot = await getDocs(collection(db, "restaurants"));
       const data = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -97,7 +103,8 @@ export default function Home() {
       }));
       setRestaurants(data);
     } catch (err) {
-      setError("Error al cargar los restaurantes.");
+      const firebaseCode = err?.code ? ` (${err.code})` : "";
+      setError(`Error al cargar los restaurantes${firebaseCode}.`);
     } finally {
       setLoading(false);
     }
@@ -132,7 +139,8 @@ export default function Home() {
       fetchRestaurants();
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      setError("Error al guardar el restaurante.");
+      const firebaseCode = err?.code ? ` (${err.code})` : "";
+      setError(`Error al guardar el restaurante${firebaseCode}.`);
     }
     setNewRest({ name: "", desc: "", addr: "", img: "", rating: "" });
   };
@@ -168,7 +176,8 @@ export default function Home() {
       setSuccess("¡Calificación guardada!");
       setTimeout(() => setSuccess(null), 2000);
     } catch (err) {
-      setError("Error al guardar la calificación.");
+      const firebaseCode = err?.code ? ` (${err.code})` : "";
+      setError(`Error al guardar la calificación${firebaseCode}.`);
     }
   };
 
