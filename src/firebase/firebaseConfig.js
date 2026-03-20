@@ -1,8 +1,6 @@
-import { getFirestore } from "firebase/firestore"; 
+import { getFirestore } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-
-
+import { getAnalytics, isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDKnaa1sQqL23Z8lZPebgBdtFA-WPzygFs",
@@ -14,9 +12,21 @@ const firebaseConfig = {
   measurementId: "G-1PLCBMR4SG"
 };
 
-
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+
+// Analytics no es critico para la app; si no esta soportado, no bloquea la carga.
+if (typeof window !== "undefined") {
+  isSupported()
+    .then((supported) => {
+      if (supported) {
+        getAnalytics(app);
+      }
+    })
+    .catch(() => {
+      // Ignoramos errores de analytics para evitar fallos en produccion.
+    });
+}
+
 export const db = getFirestore(app);
 
 

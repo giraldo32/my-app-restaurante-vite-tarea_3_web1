@@ -78,9 +78,12 @@ export default function Home() {
 
       // Si no hay datos en Firestore, mostramos los iniciales sin escribir en la BD.
       setRestaurants(data.length > 0 ? data : restaurantesIniciales);
+      setError(null);
     } catch (err) {
-      const firebaseCode = err?.code ? ` (${err.code})` : "";
-      setError(`Error al cargar los restaurantes${firebaseCode}.`);
+      // Si Firestore niega permisos, mantenemos la app funcional con datos locales.
+      setRestaurants(restaurantesIniciales);
+      setError(null);
+      console.warn("Firestore no disponible, usando datos locales:", err?.code || err);
     } finally {
       setLoading(false);
     }
