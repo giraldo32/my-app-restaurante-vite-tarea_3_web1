@@ -52,6 +52,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [newRest, setNewRest] = useState({
     name: "",
@@ -77,11 +78,24 @@ export default function Home() {
       }));
 
       // Si no hay datos en Firestore, mostramos los iniciales sin escribir en la BD.
-      setRestaurants(data.length > 0 ? data : restaurantesIniciales);
+      let allRestaurants = data.length > 0 ? data : restaurantesIniciales;
+      
+      // Combinar con datos guardados localmente (si existen).
+      const localRestaurants = JSON.parse(localStorage.getItem("restaurantes_locales") || "[]");
+      if (localRestaurants.length > 0) {
+        allRestaurants = [...allRestaurants, ...localRestaurants];
+      }
+      
+      setRestaurants(allRestaurants);
       setError(null);
     } catch (err) {
       // Si Firestore niega permisos, mantenemos la app funcional con datos locales.
-      setRestaurants(restaurantesIniciales);
+      let fallbackRestaurants = restaurantesIniciales;
+      const localRestaurants = JSON.parse(localStorage.getItem("restaurantes_locales") || "[]");
+      if (localRestaurants.length > 0) {
+        fallbackRestaurants = [...fallbackRestaurants, ...localRestaurants];
+      }
+      setRestaurants(fallbackRestaurants);
       setError(null);
       console.warn("Firestore no disponible, usando datos locales:", err?.code || err);
     } finally {
@@ -110,18 +124,46 @@ export default function Home() {
 
   const handleAdd = async e => {
     e.preventDefault();
+    setError(null);
     setSuccess(null);
-    navigate("/");
+    setSaving(true);
+
+    const restaurantData = {
+      ...newRest,
+      rating: Number(newRest.rating) || 0,
+      createdAt: new Date().toISOString()
+    };
+
     try {
-      await addDoc(collection(db, "restaurants"), { ...newRest, rating: Number(newRest.rating) || 0 });
+      await addDoc(collection(db, "restaurants"), restaurantData);
+      // Solo navega si la escritura en Firestore fue exitosa.
       setSuccess("¡Restaurante guardado exitosamente!");
-      fetchRestaurants();
-      setTimeout(() => setSuccess(null), 3000);
+      setNewRest({ name: "", desc: "", addr: "", img: "", rating: "" });
+      setTimeout(() => {
+        navigate("/");
+        fetchRestaurants();
+      }, 800);
     } catch (err) {
-      const firebaseCode = err?.code ? ` (${err.code})` : "";
-      setError(`Error al guardar el restaurante${firebaseCode}.`);
+      // Si Firestore falla por permisos, guardamos en localStorage como fallback.
+      if (err?.code === "permission-denied") {
+        const stored = JSON.parse(localStorage.getItem("restaurantes_locales") || "[]");
+        const newId = "local_" + Date.now();
+        stored.push({ ...restaurantData, id: newId });
+        localStorage.setItem("restaurantes_locales", JSON.stringify(stored));
+        // Actualizar lista local.
+        setRestaurants(prev => [...prev, { ...restaurantData, id: newId }]);
+        setSuccess("¡Restaurante guardado localmente! (Firestore no disponible)");
+        setNewRest({ name: "", desc: "", addr: "", img: "", rating: "" });
+        setTimeout(() => {
+          navigate("/");
+        }, 800);
+      } else {
+        const firebaseCode = err?.code ? ` (${err.code})` : "";
+        setError(`Error al guardar el restaurante${firebaseCode}. Intenta de nuevo.`);
+      }
+    } finally {
+      setSaving(false);
     }
-    setNewRest({ name: "", desc: "", addr: "", img: "", rating: "" });
   };
 
   const handleInicio = () => {
@@ -142,6 +184,7 @@ export default function Home() {
       [restId]: newRating
     }));
 
+    // Actualizar en UI primero (optimistic update).
     setRestaurants(prev =>
       prev.map(r =>
         r.id === restId ? { ...r, rating: newRating } : r
@@ -150,8 +193,15 @@ export default function Home() {
 
     
     try {
-      const restDoc = doc(db, "restaurants", restId);
-      await updateDoc(restDoc, { rating: newRating });
+      // Si es ID local, guardar en localStorage; si no, en Firestore.
+      if (restId.startsWith("local_")) {
+        const stored = JSON.parse(localStorage.getItem("restaurantes_locales") || "[]");
+        const updated = stored.map(r => r.id === restId ? { ...r, rating: newRating } : r);
+        localStorage.setItem("restaurantes_locales", JSON.stringify(updated));
+      } else {
+        const restDoc = doc(db, "restaurants", restId);
+        await updateDoc(restDoc, { rating: newRating });
+      }
       setSuccess("¡Calificación guardada!");
       setTimeout(() => setSuccess(null), 2000);
     } catch (err) {
@@ -312,14 +362,17 @@ export default function Home() {
                   <button
                     className="btn"
                     type="submit"
+                    disabled={saving}
                     style={{
-                      background: DARK_BLUE,
+                      background: saving ? "#888" : DARK_BLUE,
                       color: "#fff",
-                      border: "none"
+                      border: "none",
+                      cursor: saving ? "not-allowed" : "pointer",
+                      opacity: saving ? 0.7 : 1
                     }}
                   >
                     <FaSave style={{ marginRight: 6, color: "#fff" }} />
-                    Guardar
+                    {saving ? "Guardando..." : "Guardar"}
                   </button>
                   <button
                     className="btn"
