@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { db } from "../firebase/firebaseConfig";
-import { collection, getDocs, addDoc, updateDoc, doc, setDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc, updateDoc, doc } from "firebase/firestore";
 import "./home.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaSearch, FaHome, FaPlus, FaTimes, FaStar, FaSave } from "react-icons/fa";
@@ -68,40 +68,16 @@ export default function Home() {
   const showSearchBox = location.pathname === "/buscar";
   const showForm = location.pathname === "/nuevo";
 
-  
-  const syncBurnedToFirestore = async () => {
-    const snapshot = await getDocs(collection(db, "restaurants"));
-    const idsFirestore = snapshot.docs.map(doc => doc.id);
-    for (const rest of restaurantesIniciales) {
-      
-      if (!idsFirestore.includes(rest.id)) {
-        await setDoc(doc(db, "restaurants", rest.id), {
-          name: rest.name,
-          desc: rest.desc,
-          addr: rest.addr,
-          img: rest.img,
-          rating: rest.rating,
-          isBurned: true
-        });
-      }
-    }
-  };
-
   const fetchRestaurants = async () => {
     try {
-      // Si la escritura inicial falla por reglas, intentamos igualmente la lectura.
-      try {
-        await syncBurnedToFirestore();
-      } catch (seedError) {
-        console.warn("No se pudo sincronizar restaurantes iniciales:", seedError);
-      }
-
       const snapshot = await getDocs(collection(db, "restaurants"));
       const data = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-      setRestaurants(data);
+
+      // Si no hay datos en Firestore, mostramos los iniciales sin escribir en la BD.
+      setRestaurants(data.length > 0 ? data : restaurantesIniciales);
     } catch (err) {
       const firebaseCode = err?.code ? ` (${err.code})` : "";
       setError(`Error al cargar los restaurantes${firebaseCode}.`);
