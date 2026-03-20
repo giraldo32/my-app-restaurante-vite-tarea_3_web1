@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { FaUtensils } from "react-icons/fa";
 
 const DARK_BLUE = "#0d2346";
-
+//aqui es un comentario//
 export default function Navbar() {
   return (
     <nav style={{ background: "#f8f9fa", padding: "16px 0", marginBottom: 50 }}>
